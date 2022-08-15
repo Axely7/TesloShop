@@ -16,6 +16,8 @@ const productSchema = new Schema({
     timestamps: true //crea el updatedat y createdat de manera automática
 });
 
+productSchema.index({title: 'text', tags: 'text'})
+
 
 const Product: Model<IProduct> = mongoose.models.Product || model('Product', productSchema);
 
