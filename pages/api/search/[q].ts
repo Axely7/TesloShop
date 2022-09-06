@@ -27,11 +27,11 @@ async function searchProducts(req: NextApiRequest, res: NextApiResponse<Data>) {
         })
     }
 
-    q.toString().toLowerCase();
+    q = q.toString().toLowerCase();
 
     await db.connect();
     const products = await Product.find({
-        $text: {$search:q}
+        $text: { $search: q }
     }).select('title images price inStock slug -_id').lean()
 
 
