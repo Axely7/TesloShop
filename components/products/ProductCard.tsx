@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import React, { FC, useMemo, useState } from "react";
 import { IProduct } from "../../interfaces";
+import { Chip } from "@mui/material";
 
 interface Props {
   product: IProduct;
@@ -37,6 +38,19 @@ export const ProductCard: FC<Props> = ({ product }) => {
         <NextLink href={`/product/${product.slug}`} passHref prefetch={false}>
           <Link>
             <CardActionArea>
+              {product.inStock === 0 && (
+                <Chip
+                  color="primary"
+                  label="No hay disponibles"
+                  sx={{
+                    position: "absolute",
+                    zIndex: 99,
+                    top: "10px",
+                    left: "10px",
+                  }}
+                />
+              )}
+
               <CardMedia
                 component="img"
                 className="fadeIn"
