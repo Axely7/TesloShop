@@ -1,12 +1,13 @@
 import { Box, Button, Chip, Grid, Typography } from "@mui/material";
 import { NextPage } from "next";
 import { useRouter } from "next/router";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { ShopLayout } from "../../components/layouts";
 import { ProductSlideshow, SizeSelector } from "../../components/products";
 import { ItemCounter } from "../../components/ui";
 import { ICartProduct, IProduct, ISize } from "../../interfaces";
 import { dbProducts } from "../../database";
+import { CartContext } from "../../context";
 
 interface Props {
   product: IProduct;
@@ -14,11 +15,12 @@ interface Props {
 
 const ProductPage: NextPage<Props> = ({ product }) => {
   const router = useRouter();
+  const { addProductToCart } = useContext(CartContext);
   const [tempCartProduct, setTempCartProduct] = useState<ICartProduct>({
     _id: product._id,
     images: product.images[0],
     price: product.price,
-    sizes: "M",
+    sizes: undefined,
     slug: product.slug,
     title: product.title,
     gender: product.gender,
@@ -32,8 +34,19 @@ const ProductPage: NextPage<Props> = ({ product }) => {
     }));
   };
 
+  const onUpdatedQuantity = (quantity: number) => {
+    setTempCartProduct((currentProduct) => ({
+      ...currentProduct,
+      quantity,
+    }));
+  };
+
   const onAddProduct = () => {
-    console.log(tempCartProduct);
+    if (!tempCartProduct.sizes) {
+      return;
+    }
+
+    addProductToCart(tempCartProduct);
   };
 
   // const { products, isLoading } = useProducts(`/products/${router.query.slug}`);
@@ -54,7 +67,11 @@ const ProductPage: NextPage<Props> = ({ product }) => {
             </Typography>
             <Box sx={{ my: 2 }}>
               <Typography variant="subtitle2">Cantidad</Typography>
-              <ItemCounter currentValue={} updatedQuantity={} maxValue={} />
+              <ItemCounter
+                currentValue={tempCartProduct.quantity}
+                updatedQuantity={(value) => onUpdatedQuantity(value)}
+                maxValue={product.inStock > 5 ? 5 : product.inStock}
+              />
               <SizeSelector
                 // selectedSize={product.sizes[2]}
                 sizes={product.sizes}
