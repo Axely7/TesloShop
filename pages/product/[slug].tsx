@@ -47,6 +47,7 @@ const ProductPage: NextPage<Props> = ({ product }) => {
     }
 
     addProductToCart(tempCartProduct);
+    router.push("/cart");
   };
 
   // const { products, isLoading } = useProducts(`/products/${router.query.slug}`);
