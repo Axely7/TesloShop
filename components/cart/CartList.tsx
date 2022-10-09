@@ -8,7 +8,6 @@ import {
   Link,
   Typography,
 } from "@mui/material";
-import { initialData } from "../../database/products";
 import { ItemCounter } from "../ui";
 import { FC, useContext } from "react";
 import { CartContext } from "../../context";
