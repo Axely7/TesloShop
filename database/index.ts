@@ -7,4 +7,4 @@ export * from './constants'
 export * as dbProducts from './dbProducts'
 
 // Base de datos de prueba
-export * as seedDatabase from './products'
+export * as seedDatabase from './seed-data'
