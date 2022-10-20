@@ -8,13 +8,15 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React from "react";
+import React, { useContext } from "react";
 import { AuthLayout } from "../../components/layouts";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { validations } from "../../utils";
 import { ErrorOutline } from "@mui/icons-material";
 import { tesloApi } from "../../api";
+import { useRouter } from "next/router";
+import { AuthContext } from "../../context";
 
 type FormData = {
   name: string;
@@ -23,6 +25,8 @@ type FormData = {
 };
 
 const RegisterPage = () => {
+  const router = useRouter();
+  const { registerUser } = useContext(AuthContext);
   const {
     register,
     handleSubmit,
@@ -30,24 +34,22 @@ const RegisterPage = () => {
   } = useForm<FormData>();
 
   const [showError, setShowError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const onRegisterForm = async ({ name, email, password }: FormData) => {
     setShowError(false);
-    try {
-      const { data } = await tesloApi.post("/user/register", {
-        name,
-        email,
-        password,
-      });
-      const { token, user } = data;
-      console.log({ token, user });
-    } catch (error) {
-      console.log("Este usuario ya existe");
+    const { hasError, message } = await registerUser(name, email, password);
+
+    if (hasError) {
       setShowError(true);
+      setErrorMessage(message!);
       setTimeout(() => {
         setShowError(false);
       }, 3000);
+      return;
     }
+
+    router.replace("/");
   };
 
   return (
