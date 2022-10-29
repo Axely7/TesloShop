@@ -76,7 +76,7 @@ const RegisterPage = () => {
                 variant="filled"
                 fullWidth
                 {...register("name", {
-                  required: "Este campo es requerio",
+                  required: "Este campo es requerido",
                   minLength: { value: 2, message: "Mínimo 2 caracteres" },
                 })}
                 error={!!errors.name}

@@ -17,7 +17,7 @@ export async function middleware(request: NextRequest){
         } catch (error) {
             console.error('JWT Invalid or not signed in', {error});
             isValidToken = false
-        }
+        } 
 
         if(!isValidToken){
             const { pathname } = request.nextUrl;
