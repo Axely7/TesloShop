@@ -14,7 +14,7 @@ export const OrderSummary = () => {
       </Grid>
       <Grid item xs={6} display="flex" justifyContent="end">
         <Typography>
-          {numberOfItems} {numberOfItems > 1 ? "productos" : "prodcuto"}
+          {numberOfItems} {numberOfItems > 1 ? "productos" : "producto"}
         </Typography>
       </Grid>
       <Grid item xs={6}>
