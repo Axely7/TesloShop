@@ -37,7 +37,7 @@ export const authOptions = {
 
         switch (account.type) {
           case 'oauth':
-            
+            token.user = await dbUsers.oAuthToDbUser(user.email || '', user.name || '')
             break;
 
           case 'credentials':
