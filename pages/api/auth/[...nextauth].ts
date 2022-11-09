@@ -2,6 +2,7 @@ import NextAuth from "next-auth"
 import GithubProvider from "next-auth/providers/github"
 import Credentials from "next-auth/providers/credentials"
 import { dbUsers } from "../../../database"
+import { signIn } from 'next-auth/react';
 
 
 export const authOptions = {
@@ -26,8 +27,20 @@ export const authOptions = {
     }),
     // ...add more providers here
   ],
+  // Custom pages
+  pages: {
+    signIn: '/auth/login',
+    newUser: '/auth/register'
+  },
 
   // Callbacks:
+  jwt:{},
+
+  session: {
+    maxAge: 2592000,
+    strategy: 'jwt',
+    updateAge: 86400
+  },
 
   callbacks: {
     async jwt({ token, account, user }: any){
