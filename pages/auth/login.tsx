@@ -3,20 +3,19 @@ import {
   Box,
   Button,
   Chip,
+  Divider,
   Grid,
   Link,
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { AuthLayout } from "../../components/layouts";
 import { useForm } from "react-hook-form";
 import { validations } from "../../utils";
-import { tesloApi } from "../../api";
 import { ErrorOutline } from "@mui/icons-material";
-import { AuthContext } from "../../context";
 import { useRouter } from "next/router";
-import { getSession, signIn } from "next-auth/react";
+import { getSession, signIn, getProviders } from "next-auth/react";
 
 type FormData = {
   email: string;
@@ -30,10 +29,16 @@ const LoginPage = () => {
     formState: { errors },
   } = useForm<FormData>();
   const router = useRouter();
-  const { loginUser } = useContext(AuthContext);
+  // const { loginUser } = useContext(AuthContext);
   const [showError, setShowError] = useState(false);
+  const [providers, setProviders] = useState<any>({});
 
-  console.log(errors);
+  useEffect(() => {
+    getProviders().then((prov) => {
+      // console.log(prov);
+      setProviders(prov);
+    });
+  }, []);
 
   const onLoginUser = async ({ email, password }: FormData) => {
     setShowError(false);
@@ -121,6 +126,32 @@ const LoginPage = () => {
               >
                 <Link underline="always">¿No tienes cuenta?</Link>
               </NextLink>
+            </Grid>
+            <Grid
+              item
+              xs={12}
+              display="flex"
+              flexDirection="column"
+              justifyContent="end"
+            >
+              <Divider sx={{ width: "100%", mb: 2 }} />
+              {Object.values(providers).map((provider: any) => {
+                if (provider.id === "credentials")
+                  return <div key="credentials"></div>;
+
+                return (
+                  <Button
+                    key={provider.id}
+                    variant="outlined"
+                    fullWidth
+                    color="primary"
+                    sx={{ mb: 1 }}
+                    onClick={() => signIn(provider.id)}
+                  >
+                    {provider.name}
+                  </Button>
+                );
+              })}
             </Grid>
           </Grid>
         </Box>
