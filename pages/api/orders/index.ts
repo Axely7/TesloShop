@@ -9,7 +9,7 @@ export default function handler (req: NextApiRequest, res: NextApiResponse<Data>
     switch (req.method) {
         case 'POST':
             
-            return createOrder(res, res)
+            return createOrder(req, res)
         
     
         default:
@@ -18,6 +18,9 @@ export default function handler (req: NextApiRequest, res: NextApiResponse<Data>
     
 }
 
-const createOrder = async (res: NextApiResponse<Data>, res1: NextApiResponse<Data>) => {
-    return res.status(201).json({message: 'Hola mundo'})
+const createOrder = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
+
+    const body = req.body;
+
+    return res.status(201).json(body)
 }
