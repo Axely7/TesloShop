@@ -14,23 +14,24 @@ interface Props {
 }
 
 const ProductPage: NextPage<Props> = ({ product }) => {
+  console.log(product)
   const router = useRouter();
   const { addProductToCart } = useContext(CartContext);
   const [tempCartProduct, setTempCartProduct] = useState<ICartProduct>({
     _id: product._id,
-    images: product.images[0],
+    image: product.images[0],
     price: product.price,
-    sizes: undefined,
+    size: undefined,
     slug: product.slug,
     title: product.title,
     gender: product.gender,
     quantity: 1,
   });
 
-  const selectedSize = (sizes: ISize) => {
+  const selectedSize = (size: ISize) => {
     setTempCartProduct((currentProduct) => ({
       ...currentProduct,
-      sizes,
+      size,
     }));
   };
 
@@ -42,7 +43,7 @@ const ProductPage: NextPage<Props> = ({ product }) => {
   };
 
   const onAddProduct = () => {
-    if (!tempCartProduct.sizes) {
+    if (!tempCartProduct.size) {
       return;
     }
 
@@ -76,7 +77,7 @@ const ProductPage: NextPage<Props> = ({ product }) => {
               <SizeSelector
                 // selectedSize={product.sizes[2]}
                 sizes={product.sizes}
-                selectedSize={tempCartProduct.sizes}
+                selectedSize={tempCartProduct.size}
                 onSelectedSize={selectedSize}
               />
             </Box>
@@ -87,7 +88,7 @@ const ProductPage: NextPage<Props> = ({ product }) => {
                 className="circular-btn"
                 onClick={onAddProduct}
               >
-                {tempCartProduct.sizes
+                {tempCartProduct.size
                   ? "Agregar al Carrito"
                   : "Seleccione una talla"}
               </Button>

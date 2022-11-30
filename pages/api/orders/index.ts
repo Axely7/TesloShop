@@ -36,6 +36,7 @@ const createOrder = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
 
     // Crear arreglo con los productos que la persona quiere
     const productsIds = orderItems.map(product => product._id);
+    console.log(orderItems)
     await db.connect();
 
     const dbProducts = await Product.find({_id: { $in: productsIds }});
