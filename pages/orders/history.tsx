@@ -44,7 +44,17 @@ const rows = [
   { id: 6, paid: true, fullname: "Elon Musk" },
 ];
 
-const HistoryPage = () => {
+interface Props{
+  orders: IOrder[];
+}
+
+
+
+const HistoryPage: NextPage<Props> = (props) => {
+
+  console.log(props)
+
+
   return (
     <ShopLayout
       title="Historial de ordenes"
@@ -66,5 +76,37 @@ const HistoryPage = () => {
     </ShopLayout>
   );
 };
+
+// You should use getServerSideProps when:
+// - Only if you need to pre-render a page whose data must be fetched at request time
+import { GetServerSideProps, NextPage } from 'next'
+import { getSession } from "next-auth/react";
+import { dbOrders } from "../../database";
+import { IOrder } from "../../interfaces";
+
+export const getServerSideProps: GetServerSideProps = async ({req}) => {
+ 
+  const session: any = await getSession({req});
+
+  if(!session){
+    return {
+      redirect: {
+        destination: '/auth/login?p=/orders/history',
+        permanent: false
+      }
+    }
+  }
+
+  const orders = await dbOrders.getOrderByUser(session.user._id)
+
+  return {
+    props: {
+      orders
+    }
+  }
+}
+
+
+
 
 export default HistoryPage;
