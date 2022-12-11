@@ -30,9 +30,9 @@ const orderSchema = new Schema({
     total: {type: Number, required: true},
 
     isPaid:{type: Boolean, required: true},
-    paidAt: {type: String}
+    paidAt: {type: String},
 
-
+    transactionId: {type: String}
 
     // name: {type: String, required: true},
     
