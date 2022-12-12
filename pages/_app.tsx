@@ -6,10 +6,13 @@ import { lightTheme } from "../themes";
 import { CssBaseline } from "@mui/material";
 import { SWRConfig } from "swr";
 import { AuthProvider, CartProvider, UIProvider } from "../context";
+import { PayPalScriptProvider } from "@paypal/react-paypal-js";
+
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
     <SessionProvider>
+      <PayPalScriptProvider options={{"client-id": process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || ''}}>
       <SWRConfig
         value={{
           fetcher: (resource, init) =>
@@ -27,6 +30,7 @@ function MyApp({ Component, pageProps }: AppProps) {
           </CartProvider>
         </AuthProvider>
       </SWRConfig>
+      </PayPalScriptProvider>
     </SessionProvider>
   );
 }
