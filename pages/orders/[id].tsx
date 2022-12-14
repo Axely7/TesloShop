@@ -28,7 +28,11 @@ interface Props {
 const OrderPage: NextPage<Props> = ({order}) => {
 
 
-  const {shippingAddress} = order
+  const {shippingAddress} = order;
+
+  const onOrderCompleted = (details) => {
+    
+  }
 
 
   return (
