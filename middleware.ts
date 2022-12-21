@@ -3,34 +3,13 @@ import type { NextRequest } from 'next/server'
 import {getToken} from 'next-auth/jwt'
 export { default } from "next-auth/middleware"
 import * as jose from 'jose'
+import { getSession } from 'next-auth/react';
 
 export async function middleware(req: NextRequest){
-    // if(request.nextUrl.pathname.startsWith('/checkout')){
-    //     const response = NextResponse.next()
 
-    //     const token = request.cookies.get('token');
-    //     let isValidToken = false;
+  const cookie = req.headers.get('cookie');
 
-    //     try {
-    //         await jose.jwtVerify(token || '', new TextEncoder().encode(process.env.JWT_SECRET_SEED));
-    //         isValidToken = true;
-    //         return NextResponse.next()
-    //     } catch (error) {
-    //         console.error('JWT Invalid or not signed in', {error});
-    //         isValidToken = false
-    //     } 
-
-    //     if(!isValidToken){
-    //         const { pathname } = request.nextUrl;
-            
-    //         return NextResponse.redirect(
-    //             new URL(`/auth/login?p=${pathname}`, request.url)
-    //         )
-    //     }
-    // }
-
-
-  const session: any = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+  const session: any = await getSession({ req: {headers: {cookie}} as any});
     console.log(session)
 
   if (!session) {    
@@ -51,16 +30,16 @@ export async function middleware(req: NextRequest){
 
   }
 
-    const validRoles = ['admin'];
+    const validRoles = ['admin', 'super-user', 'CEO'];
 
     if(req.nextUrl.pathname.startsWith('/admin')){
-      if(!validRoles.includes(session.user.role)){
+      if(!validRoles.includes(session?.user.role)){
         return NextResponse.redirect(new URL("/", req.url))
       }
     }
 
     if(req.nextUrl.pathname.startsWith('/api/admin')){
-      if(!validRoles.includes(session.user.role)){
+      if(!validRoles.includes(session?.user.role)){
         return NextResponse.redirect(new URL(`/api/auth/unauthorized`, req.url))
       }
     }
