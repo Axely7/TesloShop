@@ -3,13 +3,10 @@ import type { NextRequest } from 'next/server'
 import {getToken} from 'next-auth/jwt'
 export { default } from "next-auth/middleware"
 import * as jose from 'jose'
-import { getSession } from 'next-auth/react';
 
 export async function middleware(req: NextRequest){
 
-  const cookie = req.headers.get('cookie');
-
-  const session: any = await getSession({ req: {headers: {cookie}} as any});
+  const session: any = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
     console.log(session)
 
   if (!session) {    
