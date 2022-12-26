@@ -1,11 +1,11 @@
-import NextAuth from "next-auth"
+import NextAuth, { NextAuthOptions } from "next-auth"
 import GithubProvider from "next-auth/providers/github"
 import Credentials from "next-auth/providers/credentials"
 import { dbUsers } from "../../../database"
 import { signIn } from 'next-auth/react';
 
 
-export const authOptions = {
+export const authOptions: NextAuthOptions = {
   // Configure one or more authentication providers
   providers: [
     Credentials({
@@ -15,10 +15,9 @@ export const authOptions = {
         password: { label: 'Contraseña:', type: 'password', placeholder: 'Contraseña' }
       },
       async authorize(credentials){
-        console.log(credentials)
-
+       
         // return {name: 'Axel', correo: 'karla@hotmail.com', role: 'admin'}
-        return await dbUsers.checkUserEmailPassword(credentials!.email, credentials!.password)
+        return await dbUsers.checkUserEmailPassword(credentials!.email, credentials!.password) as any
       }
     }),
     GithubProvider({
