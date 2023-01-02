@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 import { GetServerSideProps } from 'next'
 import { AdminLayout } from '../../../components/layouts'
 import { IProduct } from '../../../interfaces';
@@ -6,6 +6,7 @@ import { DriveFileRenameOutline, SaveOutlined, UploadOutlined } from '@mui/icons
 import { dbProducts } from '../../../database';
 import { Box, Button, capitalize, Card, CardActions, CardMedia, Checkbox, Chip, Divider, FormControl, FormControlLabel, FormGroup, FormLabel, Grid, ListItem, Paper, Radio, RadioGroup, TextField } from '@mui/material';
 import { useForm } from 'react-hook-form';
+import tesloApi from '../../../api/tesloApi';
 
 
 const validTypes  = ['shirts','pants','hoodies','hats']
@@ -34,19 +35,89 @@ interface Props {
 
 const ProductAdminPage:FC<Props> = ({ product }) => {
 
+    const [newTagValue, setNewTagValue] = useState('');
+    const [isSaving, setIsSaving] = useState(false);
 
-    const { register, handleSubmit, formState: {errors}, getValues, setValue } = useForm<FormData>({
+    const { register, handleSubmit, formState: {errors}, getValues, setValue, watch } = useForm<FormData>({
         defaultValues: product
     })
 
+    useEffect(() => {
+      const subscription = watch((value, { name, type }) => {
+        console.log({value, name, type})
+        if(name ==='title'){
+            const newSlug = value.title?.trim()
+                .replaceAll(' ', '_')
+                .replaceAll("'", '')
+                .toLocaleLowerCase() || '';
 
-    const onDeleteTag = ( tag: string ) => {
+            setValue('slug', newSlug)
+        }
+      })
+
+      return () => subscription.unsubscribe()
+    }, [watch, setValue])
+    
+
+    const onChangeSize = (size: string) => {
+        const currentSizes = getValues('sizes');
+
+        if(currentSizes.includes(size)){
+            return setValue('sizes', currentSizes.filter(s => s !== size), { shouldValidate: true })
+        }
+
+        setValue('sizes', [...currentSizes, size], {shouldValidate: true})
 
     }
 
 
-    const onSubmit = (form: FormData) => {
-        console.log(form)
+    const onNewTag = () => {
+        const newTag = newTagValue.trim().toLocaleLowerCase();
+        setNewTagValue('');
+
+        const currentTags = getValues('tags');
+
+        if(currentTags.includes(newTag)){
+            return;
+        }
+
+        currentTags.push(newTag)
+
+    }
+
+
+
+    const onDeleteTag = ( tag: string ) => {
+        const updatedTags = getValues('tags').filter(t => t !== tag);
+        setValue('tags', updatedTags, { shouldValidate: true })
+    }
+
+
+    const onSubmit = async (form: FormData) => {
+        
+        if(form.images.length < 2) return alert('Mínimo 2 imágenes');
+        setIsSaving(true);
+
+        try {
+            const {data} = await tesloApi({
+                url: '/admin/products',
+                method: 'PUT', // si tenemos un _id, entonces actualizar, si no crear
+                data: form
+            })
+
+            console.log(data)
+
+            if(!form._id){
+                // TODO: recargar el navegador
+            } else {
+                setIsSaving(false)
+            }
+
+        } catch (error) {
+            console.log(error)
+            setIsSaving(false)
+        }
+
     }
 
 
@@ -63,6 +134,7 @@ const ProductAdminPage:FC<Props> = ({ product }) => {
                         startIcon={ <SaveOutlined /> }
                         sx={{ width: '150px' }}
                         type="submit"
+                        disabled={isSaving}
                         >
                         Guardar
                     </Button>
@@ -172,7 +244,12 @@ const ProductAdminPage:FC<Props> = ({ product }) => {
                             <FormLabel>Tallas</FormLabel>
                             {
                                 validSizes.map(size => (
-                                    <FormControlLabel key={size} control={<Checkbox />} label={ size } />
+                                    <FormControlLabel 
+                                        key={size} 
+                                        control={<Checkbox checked={getValues('sizes').includes(size)}/>} 
+                                        label={ size } 
+                                        onChange={ () => onChangeSize(size) }
+                                    />
                                 ))
                             }
                         </FormGroup>
@@ -200,6 +277,9 @@ const ProductAdminPage:FC<Props> = ({ product }) => {
                             fullWidth 
                             sx={{ mb: 1 }}
                             helperText="Presiona [spacebar] para agregar"
+                            value={ newTagValue }
+                            onChange={({target}) => setNewTagValue(target.value)}
+                            onKeyUp={({code}) => code === 'Space' ? onNewTag() : undefined}
                         />
                         
                         <Box sx={{
@@ -211,7 +291,7 @@ const ProductAdminPage:FC<Props> = ({ product }) => {
                         }}
                         component="ul">
                             {
-                                product.tags.map((tag) => {
+                                getValues('tags').map((tag) => {
 
                                 return (
                                     <Chip

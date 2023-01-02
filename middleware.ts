@@ -24,7 +24,7 @@ export async function middleware(req: NextRequest){
     // return NextResponse.redirect(url);
     // const requestedPage = req.nextUrl.pathname;
     // return NextResponse.redirect(new URL(`/auth/login?p=${requestedPage}`, req.url))
-
+    return NextResponse.redirect(url)
   }
 
     const validRoles = ['admin', 'super-user', 'CEO'];
