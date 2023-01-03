@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from 'react'
+import React, { ChangeEvent, FC, useEffect, useRef, useState } from 'react'
 import { GetServerSideProps } from 'next'
 import { AdminLayout } from '../../../components/layouts'
 import { IProduct } from '../../../interfaces';
@@ -7,6 +7,8 @@ import { dbProducts } from '../../../database';
 import { Box, Button, capitalize, Card, CardActions, CardMedia, Checkbox, Chip, Divider, FormControl, FormControlLabel, FormGroup, FormLabel, Grid, ListItem, Paper, Radio, RadioGroup, TextField } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import tesloApi from '../../../api/tesloApi';
+import Product from '../../../models/Product';
+import { useRouter } from 'next/router';
 
 
 const validTypes  = ['shirts','pants','hoodies','hats']
@@ -35,6 +37,8 @@ interface Props {
 
 const ProductAdminPage:FC<Props> = ({ product }) => {
 
+    const router = useRouter()
+    const fileInputRef = useRef<HTMLInputElement>(null)
     const [newTagValue, setNewTagValue] = useState('');
     const [isSaving, setIsSaving] = useState(false);
 
@@ -92,6 +96,24 @@ const ProductAdminPage:FC<Props> = ({ product }) => {
         setValue('tags', updatedTags, { shouldValidate: true })
     }
 
+    const onFilesSelected = async ({ target }: ChangeEvent<HTMLInputElement>) => {
+        if(!target.files || target.files.length === 0){
+            return;
+        }
+
+        try {
+            for(const file of target.files){
+                const formData = new FormData();
+                formData.append('file', file);
+                const { data } = await tesloApi.post<{ message: string }>('/admin/upload', formData)
+                console.log(data)
+            }
+        } catch (error) {
+            console.log(error)
+        }
+      
+    }
+
 
     const onSubmit = async (form: FormData) => {
         
@@ -101,14 +123,14 @@ const ProductAdminPage:FC<Props> = ({ product }) => {
         try {
             const {data} = await tesloApi({
                 url: '/admin/products',
-                method: 'PUT', // si tenemos un _id, entonces actualizar, si no crear
+                method: form._id ? 'PUT' : 'POST', // si tenemos un _id, entonces actualizar, si no crear
                 data: form
             })
 
             console.log(data)
 
             if(!form._id){
-                // TODO: recargar el navegador
+               router.replace(`/admin/products/${form.slug}`)
             } else {
                 setIsSaving(false)
             }
@@ -253,7 +275,6 @@ const ProductAdminPage:FC<Props> = ({ product }) => {
                                 ))
                             }
                         </FormGroup>
-
                     </Grid>
 
                     {/* Tags e imagenes */}
@@ -315,9 +336,18 @@ const ProductAdminPage:FC<Props> = ({ product }) => {
                                 fullWidth
                                 startIcon={ <UploadOutlined /> }
                                 sx={{ mb: 3 }}
+                                onClick={ () => fileInputRef.current?.click() }
                             >
                                 Cargar imagen
                             </Button>
+                            <input 
+                                ref={ fileInputRef }
+                                type="file"
+                                multiple
+                                accept='image/png, image/gif, image/jpeg'
+                                style={{ display: 'none' }}
+                                onChange={ onFilesSelected }
+                            />
 
                             <Chip 
                                 label="Es necesario al 2 imagenes"
@@ -364,8 +394,19 @@ const ProductAdminPage:FC<Props> = ({ product }) => {
 export const getServerSideProps: GetServerSideProps = async ({ query }) => {
     
     const { slug = ''} = query;
+
+    let product: IProduct | null;
+
+    if(slug === 'new'){
+        const tempProduct = JSON.parse(JSON.stringify(new Product()));
+        delete tempProduct._id;
+        tempProduct.images = ['img1.jpg', 'img2.jpg'];
+        product = tempProduct
+
+    } else {
+        product = await dbProducts.getProductBySlug(slug.toString());
+    }
     
-    const product = await dbProducts.getProductBySlug(slug.toString());
 
     if ( !product ) {
         return {
