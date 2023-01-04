@@ -30,7 +30,13 @@ const getProductBySlug = async(req: NextApiRequest, res: NextApiResponse<Data>) 
         await db.disconnect();
         return res.status(404).json({message: 'No hay producto con ese Slug' + slug});
     }
-
     await db.disconnect();
+
+
+    productToGet.images = productToGet.images.map(image => {
+        return image.includes('http') ? image : `${process.env.HOST_NAME}products/${ image }`
+    })
+
+
     return res.status(200).json(productToGet!)
 }

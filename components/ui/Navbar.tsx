@@ -51,7 +51,7 @@ export const Navbar = () => {
           }}
           className="fadeIn"
         >
-          <NextLink href="/category/men" passHref>
+          <NextLink href="/category/men" passHref legacyBehavior>
             <Link>
               <Button
                 color={router.pathname === "/category/men" ? "primary" : "info"}
@@ -60,7 +60,7 @@ export const Navbar = () => {
               </Button>
             </Link>
           </NextLink>
-          <NextLink href="/category/women" passHref>
+          <NextLink href="/category/women" passHref legacyBehavior>
             <Link>
               <Button
                 color={
@@ -71,7 +71,7 @@ export const Navbar = () => {
               </Button>
             </Link>
           </NextLink>
-          <NextLink href="/category/children" passHref>
+          <NextLink href="/category/children" passHref legacyBehavior>
             <Link>
               <Button
                 color={
@@ -124,7 +124,7 @@ export const Navbar = () => {
           <SearchOutlined />
         </IconButton>
 
-        <NextLink href="/cart" passHref>
+        <NextLink href="/cart" passHref legacyBehavior>
           <Link>
             <IconButton>
               <Badge
