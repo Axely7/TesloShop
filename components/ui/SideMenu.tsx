@@ -43,6 +43,7 @@ export const SideMenu = () => {
   };
 
   const navigateTo = (url: string) => {
+    console.log(url)
     toggleSideMenu();
     router.push(url);
   };
